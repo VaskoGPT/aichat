@@ -1,0 +1,67 @@
+Чтобы создать базу данных PostgreSQL для вашего сайта на новом компьютере или сервере, выполните следующие шаги:
+
+1. **Установите PostgreSQL**  
+   На macOS:  
+   ```sh
+   brew install postgresql
+   ```
+
+   На Ubuntu/Debian:  
+   ```sh
+   sudo apt update
+   sudo apt install postgresql postgresql-contrib
+   ```
+
+2. **Запустите PostgreSQL (если не запущен)**  
+   На macOS:  
+   ```sh
+   brew services start postgresql
+   ```
+   На Linux:  
+   ```sh
+   sudo service postgresql start
+   ```
+
+3. **Создайте пользователя и базу данных**  
+   Откройте терминал и выполните:
+   ```sh
+   psql postgres
+   ```
+   Затем в интерактивной консоли psql:
+   ```sql
+   CREATE USER myuser WITH PASSWORD 'mypassword';
+   CREATE DATABASE aichat OWNER myuser;
+   GRANT ALL PRIVILEGES ON DATABASE aichat TO myuser;
+   ```
+
+   (Замените `myuser` и `mypassword` на свои значения, если нужно.)
+
+4. CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(200),
+  ip VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  requests INTEGER DEFAULT 1
+);
+
+
+5. SELECT * FROM users;
+Проверка базы данных 
+
+4. **Выйдите из psql**  
+   ```
+   \\q
+   ```
+
+Теперь ваша база данных готова, и ваш сайт сможет к ней подключаться!  
+Если потребуется — могу сгенерировать команды под вашу ОС или помочь с настройкой доступа.
+
+
+Очистка таблица
+TRUNCATE TABLE messages RESTART IDENTITY CASCADE;
+TRUNCATE TABLE users RESTART IDENTITY CASCADE;
+
+
+const OPENAI_API_KEY = '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';
