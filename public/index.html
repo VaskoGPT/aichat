@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Современный чат-бот</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style_index.css">
+</head>
+<body>
+  <div class="bg-blobs" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+  </div>
+
+  <!-- Login/Signup Buttons -->
+  <div class="auth-buttons">
+    <button class="auth-btn login">Войти</button>
+    <button class="auth-btn signup">Зарегистрироваться</button>
+  </div>
+
+  <div class="container">
+    <div class="brand">Современный чат-бот</div>
+
+    <div class="prompt-card" id="promptCard">
+      <div class="prompt-row">
+        <div class="prompt-input" id="promptInput">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"></path>
+            <circle cx="11" cy="11" r="5" stroke="currentColor" stroke-width="1.6" opacity="0.9"></circle>
+          </svg>
+          <input id="q" placeholder="Задавайте вопросы — попробуйте: &quot;Какая погода сегодня?&quot;" aria-label="Запрос чата">
+        </div>
+        <button class="send-btn" id="sendBtn" aria-label="Отправить">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="examples">
+        <div class="example-chip">Какова столица Франции?</div>
+        <div class="example-chip">Кратко о последних новостях в ИИ</div>
+        <div class="example-chip">Переведите "Доброе утро" на японский язык</div>
+      </div>
+
+      
+      
+      <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+          <img src="https://ui-avatars.com/api/?name=AI&size=36" alt="Аватар ИИ">
+          <div>Ассистент чата</div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot-message">Здравствуйте! Чем могу помочь?</div>
+        </div>
+        <div class="chat-input-container">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Введите ваше сообщение...">
+          <button class="chat-send-btn" id="chatSendBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const promptCard = document.getElementById('promptCard');
+    const q = document.getElementById('q');
+    const results = document.getElementById('results');
+    const sendBtn = document.getElementById('sendBtn');
+    const exampleChips = document.querySelectorAll('.example-chip');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+
+    function expandWithQuery(text){
+      if(!text) return;
+      
+      // Скрыть элементы запроса
+      promptCard.classList.add('expanded');
+      
+      // Показать результаты для начального запроса
+      results.innerHTML = '<div class="result-card"><strong>Ответ</strong><div style="margin-top:8px">Это воссозданный результат в стиле Perplexity для запроса: "'+text.replace(/</g,'&lt;')+'"</div></div>';
+      
+      // Добавить первое сообщение бота в чат
+      addMessage('bot', "Я понимаю, что вы спрашиваете о \"" + text + "\". Давайте предоставим подробный ответ.");
+      
+      // Прокрутить к результатам
+      results.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    sendBtn.addEventListener('click', ()=>{
+      expandWithQuery(q.value.trim());
+    });
+
+    q.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        expandWithQuery(q.value.trim());
+      }
+    });
+
+    exampleChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        q.value = chip.textContent;
+        expandWithQuery(q.value.trim());
+      });
+    });
+    
+    // Функциональность чата
+    function addMessage(sender, text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+      messageDiv.textContent = text;
+      
+      // Добавить кнопку копирования для сообщений бота
+      if (sender === 'bot') {
+        const copyButton = document.createElement('div');
+        copyButton.className = 'copy-button';
+        copyButton.innerHTML = `
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm-1 9h-4v2h4v-2zm0-4h-4v2h4V7zm0 8h-4v2h4v-2z"/>
+          </svg>
+          <div class="copy-tooltip">Скопировать</div>
+        `;
+        
+        copyButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const textToCopy = text;
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            // Показать уведомление
+            const tooltip = this.querySelector('.copy-tooltip');
+            tooltip.textContent = 'Скопировано!';
+            setTimeout(() => {
+              tooltip.textContent = 'Скопировать';
+            }, 2000);
+          });
+        });
+        
+        messageDiv.appendChild(copyButton);
+      }
+      
+      chatMessages.appendChild(messageDiv);
+      
+      // Прокрутить до конца
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    chatSendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+    
+    function sendMessage() {
+      const message = chatInput.value.trim();
+      if(message) {
+        addMessage('user', message);
+        chatInput.value = '';
+        // Показать индикатор "Печатает..."
+        const typingDiv = document.createElement('div');
+        typingDiv.classList.add('message', 'bot-message');
+        typingDiv.textContent = 'Печатает...';
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Отправить запрос на сервер
+        fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        })
+        .then(res => res.json())
+        .then(data => {
+          typingDiv.remove();
+          // Проверяем лимит для незарегистрированных (гостей)
+          if (data.limitExceeded) {
+            addMessage('bot', 'Вы достигли максимального количества бесплатных запросов. Чтобы продолжить — Зарегистрируйтесь');
+            chatInput.disabled = true;
+            chatInput.placeholder = 'Регистрация обязательна';
+            // Добавим кнопку регистрации
+            if (!document.getElementById('regBtn')) {
+              const regBtn = document.createElement('button');
+              regBtn.id = 'regBtn';
+              regBtn.textContent = 'Зарегистрироваться';
+              regBtn.style.marginLeft = '10px';
+              regBtn.onclick = () => window.location.href = '/reg.html';
+              chatInput.parentNode.appendChild(regBtn);
+            }
+            return;
+          }
+          if (data.reply) {
+            addMessage('bot', data.reply);
+          } else {
+            addMessage('bot', 'Ошибка: нет ответа от сервера.');
+          }
+        })
+        .catch(() => {
+          typingDiv.remove();
+          addMessage('bot', 'Ошибка соединения с сервером.');
+        });
+      }
+    }
+    
+    // Login/Signup button functionality
+    document.querySelector('.auth-btn.login').addEventListener('click', function() {
+      alert('Переход к странице входа');
+    });
+    
+    document.querySelector('.auth-btn.signup').addEventListener('click', function() {
+      alert('Переход к странице регистрации');
+    });
+    
+    // --- User info/auth panel ---
+    async function updateAuthPanel() {
+      const panel = document.querySelector('.auth-buttons');
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        if (data.user) {
+          panel.innerHTML = `<div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-weight:600;">${data.user.name || data.user.email}</span>
+            <button class="auth-btn logout">Выйти</button>
+            <button class="auth-btn delete-account" style="background:#c00;color:#fff;">Удалить аккаунт</button>
+          </div>`;
+          panel.querySelector('.logout').onclick = async () => {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.reload();
+          };
+          panel.querySelector('.delete-account').onclick = async () => {
+            if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) {
+              const res = await fetch('/api/delete-user', { method: 'POST' });
+              const result = await res.json();
+              if (result.success) {
+                window.location.reload();
+              } else {
+                alert(result.error || 'Ошибка удаления');
+              }
+            }
+          };
+        } else {
+          panel.innerHTML = `
+            <button class="auth-btn login">Войти</button>
+            <button class="auth-btn signup">Зарегистрироваться</button>
+          `;
+          panel.querySelector('.login').onclick = () => window.location.href = '/login.html';
+          panel.querySelector('.signup').onclick = () => window.location.href = '/reg.html';
+        }
+      } catch {}
+    }
+    updateAuthPanel();
+  </script>
+</body>
+</html>
